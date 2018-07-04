@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>js图片压缩demo</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <h1>js图片压缩demo</h1>
+    <input id="file" type="file">
+    <img id="img" src="" alt="">
+    <script>
+        /*********************************************
+         * js图片压缩demo
+         * js压缩图片的核心原理是利用canvas的drawImage方法
+         *
+        *********************************************/
+
+        /**
+         * 压缩图片
+         * @param base64Str string 图片base64字符串
+         * @param width number 压缩后的图片宽度
+         * @param height number 压缩后的图片高度
+         * @param type string 图片格式(如:image/jpeg)
+         * @param quality number 压缩后的图片质量（取值范围：0~1 ，仅对image/jpeg 或 image/webp有效）
+         * @returns 压缩后的base64字符串
+         */
+        function imgCompress(base64Str, width, height, type, quality) {
+            return new Promise(function(resolve, reject){
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                var img = new Image();
+                img.src = base64Str;
+                img.onload = function() {
+                    canvas.width = width;
+                    canvas.height = height;
+                    context.drawImage(img, 0, 0, width, height);
+                    var newBase64Str = canvas.toDataURL(type, quality);
+                    resolve(newBase64Str);
+                }
+            });
+        }
+
+        window.onload = function() {
+            var fileInput = document.getElementById('file');
+            var img = document.getElementById('img');
+            
+            fileInput.onchange = function(e) {
+                var file = e.target.files[0];   // 获取图片对象
+                var type = file.type;           // 获取图片格式
+                var reader = new FileReader();  
+                reader.readAsDataURL(file);     
+                reader.onload = function(e) {
+                    var base64Str = e.target.result;    // 获取图片的base64字符串
+                    imgCompress(base64Str, 1280, 860, type, 0.5).then(function(data){
+                        img.src = data;
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
